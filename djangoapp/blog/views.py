@@ -5,7 +5,7 @@ from blog.models import Post
 QTDE_PASGE = 9
 
 def index(request):
-    post_list = Post.objects.filter(is_published=True).order_by('-pk')
+    post_list = Post.objects.get_published()
     paginator = Paginator(post_list, QTDE_PASGE)
 
     page_number = request.GET.get('page')

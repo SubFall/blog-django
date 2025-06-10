@@ -87,11 +87,17 @@ class Page(models.Model):
     def __str__(self) -> str:
         return self.title
     
+class PostManage(models.Manager):
+    def get_published(self):
+        return self.filter(is_published=True)
+    
 
 class Post(models.Model):
     class Meta:
         verbose_name = 'Post'
         verbose_name_plural = 'Posts'
+    
+    objects = PostManage()
 
     title = models.CharField(max_length=65,)
     slug = models.SlugField(
