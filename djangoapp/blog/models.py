@@ -3,6 +3,7 @@ from utils.rands import slugify_new
 from django.contrib.auth.models import User
 from utils.image import resize_image
 from django_summernote.models import AbstractAttachment
+from django.urls import reverse
 
 class PostAttachment(AbstractAttachment):
     def save(self, *args, **kwargs):
@@ -89,7 +90,7 @@ class Page(models.Model):
     
 class PostManage(models.Manager):
     def get_published(self):
-        return self.filter(is_published=True)
+        return self.filter(is_published=True).order_by('-pk')
     
 
 class Post(models.Model):
@@ -149,6 +150,13 @@ class Post(models.Model):
             print('estou aqui')
             resize_image(self.cover, 900)
         return save
+    
+    def get_absolute_url(self):
+        
+        if not self.is_published:
+            return reverse('index')
+        return reverse("post", args=(self.slug,))
+    
     
     def __str__(self) -> str:
         return self.title
