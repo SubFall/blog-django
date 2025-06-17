@@ -10,9 +10,6 @@ class PostAttachment(AbstractAttachment):
         if not self.name:
             self.name = self.file.name
 
-        
-        print(self.file.name)
-
         current_file_name = str(self.file.name)
         save = super().save(*args, **kwargs)
         file_changed = False
@@ -21,7 +18,6 @@ class PostAttachment(AbstractAttachment):
             file_changed = current_file_name != self.file.name
 
         if file_changed:
-            print('estou aqui')
             resize_image(self.file, 900)
         return save
 
@@ -84,6 +80,12 @@ class Page(models.Model):
         if not self.slug:
             self.slug = slugify_new(self.title, 4)
         return super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        
+        if not self.is_published:
+            return reverse('index')
+        return reverse("page", args=(self.slug,))
 
     def __str__(self) -> str:
         return self.title

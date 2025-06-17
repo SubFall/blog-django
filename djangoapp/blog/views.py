@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.core.paginator import Paginator
-from blog.models import Post
+from blog.models import Post, Page
 from django.db.models import Q
 
 QTDE_PASGE = 9
@@ -86,8 +86,11 @@ def post(request, slug):
         {'post': post}
     )
 
-def page(request):
+def page(request, slug):
+    page = Page.objects.filter(slug=slug).filter(is_published=True).first()
+
     return render(
         request,
-        'blog/pages/page.html'
+        'blog/pages/page.html',
+        {'page': page}
     )
