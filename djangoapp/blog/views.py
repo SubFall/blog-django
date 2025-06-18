@@ -4,23 +4,47 @@ from blog.models import Post, Page
 from django.db.models import Q
 from django.contrib.auth.models import User
 from django.http import Http404
+from django.views.generic import ListView
 
-QTDE_PASGE = 9
+QTDE_PAGE = 9
 
-def index(request):
-    post_list = Post.objects.get_published()
-    paginator = Paginator(post_list, QTDE_PASGE)
+class PostListView(ListView):
+    model = Post
+    template_name = 'blog/pages/index.html'
+    context_object_name = 'posts'
+    ordering = '-pk'
+    paginate_by = QTDE_PAGE
+    queryset = Post.objects.get_published()
 
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-    return render(
-        request,
-        'blog/pages/index.html',
-        {
-            'page_obj': page_obj,
+    # def get_queryset(self):
+    #     queryset = super().get_queryset()
+    #     queryset = queryset.filter(is_published=True)
+    #     return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context.update({
             'title': 'home - '
-        }
-    )
+        })
+        
+        return context
+    
+
+# def index(request):
+#     post_list = Post.objects.get_published()
+#     paginator = Paginator(post_list, QTDE_PAGE)
+
+#     page_number = request.GET.get('page')
+#     page_obj = paginator.get_page(page_number)
+#     return render(
+#         request,
+#         'blog/pages/index.html',
+#         {
+#             'page_obj': page_obj,
+#             'title': 'home - '
+#         }
+#     )
 
 def created_by(request, author_pk):
     user = User.objects.filter(pk=author_pk).first()
@@ -36,7 +60,7 @@ def created_by(request, author_pk):
     page_title = f'posts de {user_full_name} - '
 
     post_list = Post.objects.get_published().filter(created_by__pk=author_pk)   
-    paginator = Paginator(post_list, QTDE_PASGE)
+    paginator = Paginator(post_list, QTDE_PAGE)
 
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -51,7 +75,7 @@ def created_by(request, author_pk):
 
 def category(request, slug):
     post_list = Post.objects.get_published().filter(category__slug=slug)
-    paginator = Paginator(post_list, QTDE_PASGE)
+    paginator = Paginator(post_list, QTDE_PAGE)
 
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -72,7 +96,7 @@ def category(request, slug):
 
 def tag(request, slug):
     post_list = Post.objects.get_published().filter(tags__slug=slug)
-    paginator = Paginator(post_list, QTDE_PASGE)
+    paginator = Paginator(post_list, QTDE_PAGE)
 
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
@@ -101,7 +125,7 @@ def search(request):
                     Q(content__icontains=search_value) 
                 )
             )
-    paginator = Paginator(post_list, QTDE_PASGE)
+    paginator = Paginator(post_list, QTDE_PAGE)
 
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
